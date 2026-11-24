@@ -12,37 +12,37 @@
 </head>
 <body>
   <main class="app" id="app">
-    <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+    <div class="ticker" aria-label="Live Solana token market caps"><div class="ticker-track" id="ticker"></div></div>
 
     <section class="hero" aria-label="Balance">
       <div class="hero-main">
         <p class="eyebrow">Started with <span id="startAmt">$183</span> · let it cook</p>
         <p class="balance" id="balance"><span class="whole" id="balWhole">$183</span><span class="cents" id="balCents">.00</span></p>
         <p class="pnl" id="pnl">+$0.00 (0%)</p>
-        <p class="sol"><span class="sol-dot"></span><span id="sol">2.691 SOL · SOL $68.00</span></p>
+        <p class="sol"><span class="sol-dot"></span><span id="sol">SOL price loading…</span></p>
       </div>
       <div class="hero-side">
         <p class="mult" id="mult">1.00×</p>
         <p class="best" id="best" hidden></p>
         <p class="worst" id="worst" hidden></p>
-        <p class="status" id="status">watching wallets…</p>
+        <p class="status" id="status">scanning live pools…</p>
       </div>
     </section>
 
     <section class="chart" aria-label="Balance over time">
       <canvas id="chart" role="img" aria-label="Balance over time"></canvas>
-      <div class="chart-times"><span id="clockStart">19:40</span><span class="sim-note">simulated data</span><span id="clock">19:40</span></div>
+      <div class="chart-times"><span id="clockStart">--:--</span><span class="sim-note" id="srcNote">paper trading · live data</span><span id="clock">--:--</span></div>
     </section>
 
-    <section class="card funnel" aria-label="Copy funnel">
+    <section class="card funnel" aria-label="Signal funnel">
       <header class="card-head">
-        <h2>Copy funnel</h2>
-        <p class="meta"><span id="sigTotal">0 signals</span> · <span class="good" id="copiedTotal">0 copied</span></p>
+        <h2>Signal funnel</h2>
+        <p class="meta"><span id="sigTotal">0 tokens</span> · <span class="good" id="copiedTotal">0 bought</span></p>
       </header>
       <ul class="stages">
         <li class="stage" data-stage="scout">
           <span class="stage-icon scout"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.6-4.6"/></svg></span>
-          <span class="stage-name"><b>Scout</b><small>tracks wallets</small></span>
+          <span class="stage-name"><b>Scout</b><small>new tokens</small></span>
           <span class="stage-act"></span>
           <span class="pill scout"></span>
         </li>
@@ -60,22 +60,22 @@
         </li>
         <li class="stage" data-stage="sniper">
           <span class="stage-icon sniper"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" class="fill"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg></span>
-          <span class="stage-name"><b>Sniper</b><small>copies wallets</small></span>
+          <span class="stage-name"><b>Sniper</b><small>paper buys</small></span>
           <span class="stage-act"></span>
           <span class="pill sniper"></span>
         </li>
         <li class="stage" data-stage="guard">
           <span class="stage-icon guard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0"/><path d="m12 16.5 3.4-4.2"/></svg></span>
-          <span class="stage-name"><b>Guard</b><small>stops by rules</small></span>
+          <span class="stage-name"><b>Guard</b><small>exit rules</small></span>
           <span class="stage-act"></span>
           <span class="pill guard"></span>
         </li>
       </ul>
     </section>
 
-    <section class="card log" aria-label="Copy log">
+    <section class="card log" aria-label="Bot log">
       <header class="card-head">
-        <h2>Copy log</h2>
+        <h2>Bot log</h2>
         <p class="meta" id="skipped">0 skipped</p>
       </header>
       <div class="log-viewport"><ol class="log-list" id="log"></ol></div>
@@ -92,8 +92,18 @@
       </div>
     </section>
 
-    <p class="foot">Simulation: generated numbers, no real wallets or trades. <kbd>Space</kbd> pause · <kbd>R</kbd> restart</p>
+    <details class="rules" id="rules">
+      <summary>Rules the bot follows</summary>
+      <dl id="rulesList"></dl>
+    </details>
+
+    <footer class="foot">
+      <p id="footNote">Paper trading on live data from DexScreener and GeckoTerminal. No real money or wallets.</p>
+      <button type="button" class="new-session" id="newSession">Start new session</button>
+    </footer>
   </main>
+  <script src="engine.js"></script>
+  <script src="live.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

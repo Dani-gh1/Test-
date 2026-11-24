@@ -1,52 +1,53 @@
 # Let It Cook
 
-Et animeret "copy-trading bot"-dashboard i pink, bygget efter en TikTok-video. Saldoen starter på $183 og vokser, mens botten kopierer handler fra "smart wallets".
+Et pink "trading bot"-dashboard efter en TikTok-video, der kører på **rigtige markedsdata**. Botten starter med $183 og handler Solana-memecoins på papir: den bruger live priser, likviditet og handelsdata, men rører aldrig rigtige penge eller en wallet.
 
-**Alt er simuleret.** Der er ingen rigtige wallets, tokens, priser eller handler. Tallene genereres i browseren.
+- **Rigtigt:** tokennavne, priser, market cap, likviditet, poolalder, handler, SOL-kurs og grundene til at tokens bliver afvist.
+- **Papir:** købene og salgene. Saldoen viser, hvad $183 ville være blevet til, hvis botten faktisk havde handlet, inklusive gebyrer og anslået prispåvirkning.
 
-## Kør den
+## Kør den live
 
-Åbn `index.html` direkte i en browser, eller servér mappen:
+Åbn `index.html` i en browser, eller servér mappen:
 
 ```sh
 python3 -m http.server 8000
 # http://localhost:8000
 ```
 
-Der er ingen build-trin og ingen afhængigheder. Inter og JetBrains Mono hentes fra Google Fonts, og siden falder tilbage til systemfonte uden net.
+Siden henter data direkte fra DexScreener og GeckoTerminal (offentlige API'er uden nøgle). Sessionen gemmes i browseren, så den fortsætter efter genindlæsning. **Start new session** (eller tasten `R`) starter forfra med $183. `?start=500` giver et andet startbeløb til en ny session.
 
-## Hvad du ser
+## Regler
 
-| Del | Indhold |
+| Trin | Hvad det gør |
 | --- | --- |
-| Ticker | Rullende bånd med fiktive tokens, market cap og ændring |
-| Saldo | Startbeløb, nuværende saldo, gevinst i $ og %, SOL-værdi, multiplikator, bedste/værste handel, win rate |
-| Graf | Saldo over tid; grønne prikker er vundne handler, mørke er tabte; stiplet linje er startbeløbet |
-| Copy funnel | Scout → Filter → Analyst → Sniper → Guard med tællere og hvad hvert trin laver lige nu |
-| Copy log | De seneste hændelser med tidsstempel |
-| Trade tape | Radar med afviste tokens og den åbne position; søjler for lukkede handler (op = gevinst, ned = tab, lineær skala) |
+| Scout | Henter nye og trending Solana-tokens fra DexScreener (nyeste profiler, boosts) og GeckoTerminal (nye og trending pools) hvert minut |
+| Filter | Afviser tokens med likviditet under $25k, market cap under $50k eller over $50M, en pool under 5 min eller over 72 t gammel, mere end +100 % den seneste time, 24 t-volumen under $50k, eller likviditet under 3 % af market cap |
+| Analyst | Afviser tokens uden hjemmeside/sociale medier, med en kopieret ticker, under 150 handler den seneste time, over 30 % flere salg end køb, eller et fald på mere end 10 % på 5 min |
+| Sniper | Papirkøber for 25 % af saldoen, højst 3 positioner ad gangen. 1 % gebyr pr. handel plus prispåvirkning anslået ud fra poolens likviditet |
+| Guard | Sælger ved −25 %, tager gevinst ved +150 %, følger 15 % under toppen når en position er oppe 30 %, og lukker efter 30 min |
 
-## URL-parametre
+Åbne positioner prissættes igen hvert 15. sekund. Reglerne står i `RULES` øverst i `engine.js`.
 
-| Parameter | Standard | Betydning |
-| --- | --- | --- |
-| `start` | `183` | Startbeløb i $ |
-| `speed` | `1` | Tempo (1 = 3 simulerede minutter pr. sekund, som i videoen) |
-| `minutes` | `75` | Sessionens længde i simulerede minutter |
-| `seed` | tilfældig | Fast seed giver præcis samme forløb hver gang |
-| `loop` | `1` | `0` stopper ved sessionens slutning i stedet for at starte forfra |
+## Snapshot til claude.ai
 
-Eksempel: `index.html?seed=21&start=250`
+En claude.ai Artifact-side må ikke hente data fra nettet, så den viser et gemt øjebliksbillede af en session:
 
-Med standardindstillingerne varer en session ca. 25 sekunder og starter forfra efter 4 sekunders pause. Slutsaldoen varierer med seed; medianen er omkring 30× startbeløbet.
+```sh
+# 1. Kør en papirsession på live data (Node 22+; NODE_USE_ENV_PROXY=1 kun bag en proxy)
+NODE_USE_ENV_PROXY=1 node scripts/snapshot.js --minutes 40 --out data/snapshot.json
+#    Fortsæt en tidligere session i stedet for at starte forfra:
+NODE_USE_ENV_PROXY=1 node scripts/snapshot.js --minutes 30 --continue data/snapshot.json
 
-## Taster
-
-- `Space`: pause / fortsæt
-- `R`: start forfra
+# 2. Byg én side med snapshottet indbygget
+node scripts/build-page.js --snapshot data/snapshot.json --out dist/let-it-cook.html
+```
 
 ## Filer
 
-- `index.html`: markup
-- `styles.css`: layout og farver
-- `app.js`: simulering og tegning (canvas)
+- `index.html`, `styles.css`: siden
+- `app.js`: tegning og brugerflade (live eller snapshot)
+- `engine.js`: regler og papirbogføring (deles af browser og Node)
+- `live.js`: datahentning fra DexScreener/GeckoTerminal og polling
+- `scripts/snapshot.js`: kører en session i Node og gemmer den
+- `scripts/build-page.js`: bygger den udgivelsesklare side i én fil
+- `data/snapshot.json`: den senest gemte session
