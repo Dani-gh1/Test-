@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#d92283">
+  <title>Let It Cook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+
+    <section class="hero" aria-label="Balance">
+      <div class="hero-main">
+        <p class="eyebrow">Started with <span id="startAmt">$183</span> · let it cook</p>
+        <p class="balance" id="balance"><span class="whole" id="balWhole">$183</span><span class="cents" id="balCents">.00</span></p>
+        <p class="pnl" id="pnl">+$0.00 (0%)</p>
+        <p class="sol"><span class="sol-dot"></span><span id="sol">2.691 SOL · SOL $68.00</span></p>
+      </div>
+      <div class="hero-side">
+        <p class="mult" id="mult">1.00×</p>
+        <p class="best" id="best" hidden></p>
+        <p class="worst" id="worst" hidden></p>
+        <p class="status" id="status">watching wallets…</p>
+      </div>
+    </section>
+
+    <section class="chart" aria-label="Balance over time">
+      <canvas id="chart" role="img" aria-label="Balance over time"></canvas>
+      <div class="chart-times"><span id="clockStart">19:40</span><span id="clock">19:40</span></div>
+    </section>
+
+    <section class="card funnel" aria-label="Copy funnel">
+      <header class="card-head">
+        <h2>Copy funnel</h2>
+        <p class="meta"><span id="sigTotal">0 signals</span> · <span class="good" id="copiedTotal">0 copied</span></p>
+      </header>
+      <ul class="stages">
+        <li class="stage" data-stage="scout">
+          <span class="stage-icon scout"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.6-4.6"/></svg></span>
+          <span class="stage-name"><b>Scout</b><small>tracks wallets</small></span>
+          <span class="stage-act"></span>
+          <span class="pill scout"></span>
+        </li>
+        <li class="stage" data-stage="filter">
+          <span class="stage-icon filter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14l-5.5 7v6l-3-1.5V12z"/></svg></span>
+          <span class="stage-name"><b>Filter</b><small>hard rules</small></span>
+          <span class="stage-act"></span>
+          <span class="pill filter"></span>
+        </li>
+        <li class="stage" data-stage="analyst">
+          <span class="stage-icon analyst"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5.5 6v5.2c0 4.1 2.7 7.4 6.5 9.3 3.8-1.9 6.5-5.2 6.5-9.3V6z"/><path d="m9.2 12 2 2 3.8-3.9"/></svg></span>
+          <span class="stage-name"><b>Analyst</b><small>deep checks</small></span>
+          <span class="stage-act"></span>
+          <span class="pill analyst"></span>
+        </li>
+        <li class="stage" data-stage="sniper">
+          <span class="stage-icon sniper"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" class="fill"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></svg></span>
+          <span class="stage-name"><b>Sniper</b><small>copies wallets</small></span>
+          <span class="stage-act"></span>
+          <span class="pill sniper"></span>
+        </li>
+        <li class="stage" data-stage="guard">
+          <span class="stage-icon guard"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5a7.5 7.5 0 1 1 15 0"/><path d="m12 16.5 3.4-4.2"/></svg></span>
+          <span class="stage-name"><b>Guard</b><small>stops by rules</small></span>
+          <span class="stage-act"></span>
+          <span class="pill guard"></span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card log" aria-label="Copy log">
+      <header class="card-head">
+        <h2>Copy log</h2>
+        <p class="meta" id="skipped">0 skipped</p>
+      </header>
+      <div class="log-viewport"><ol class="log-list" id="log"></ol></div>
+    </section>
+
+    <section class="card tape" aria-label="Trade tape">
+      <canvas id="radar" class="radar" aria-hidden="true"></canvas>
+      <div class="tape-main">
+        <header class="tape-head">
+          <h2>Trade tape</h2>
+          <p class="tape-last" id="tapeLast"><span class="muted">scanning…</span></p>
+        </header>
+        <canvas id="bars" class="bars" role="img" aria-label="Closed trades: none yet"></canvas>
+      </div>
+    </section>
+
+    <p class="foot">Simulation: generated numbers, no real wallets or trades. <kbd>Space</kbd> pause · <kbd>R</kbd> restart</p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
