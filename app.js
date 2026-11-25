@@ -162,7 +162,8 @@
     setText(dom.startAmt, money(S.startUsd, S.startUsd % 1 ? 2 : 0));
     if (MODE === 'snapshot') {
       setText(dom.srcNote, 'paper trading · snapshot');
-      setText(dom.footNote, `Snapshot of a paper-trading session on live DexScreener and GeckoTerminal data, ${dayTime(S.startedAt)} to ${hm(S.updatedAt)}. No real money or wallets.`);
+      const sameDay = new Date(S.startedAt).toDateString() === new Date(S.updatedAt).toDateString();
+      setText(dom.footNote, `Snapshot of a paper-trading session on live DexScreener and GeckoTerminal data, ${dayTime(S.startedAt)} to ${sameDay ? hm(S.updatedAt) : dayTime(S.updatedAt)}. No real money or wallets.`);
       dom.newSession.hidden = true;
     } else {
       setText(dom.srcNote, 'paper trading · live data');
@@ -329,8 +330,9 @@
     else status = MODE === 'live' ? 'scanning live pools…' : 'no trades in snapshot';
     setText(dom.status, status);
 
-    setText(dom.clockStart, hm(S.startedAt));
-    setText(dom.clock, hm(viewNow()));
+    const longRun = viewNow() - S.startedAt > 12 * 3600e3;
+    setText(dom.clockStart, longRun ? dayTime(S.startedAt) : hm(S.startedAt));
+    setText(dom.clock, longRun ? dayTime(viewNow()) : hm(viewNow()));
     setText(dom.sigTotal, int(c.signals) + ' tokens');
     setText(dom.copiedTotal, c.bought + ' bought');
     setText(dom.skipped, int(Math.max(0, c.signals - c.bought)) + ' skipped');

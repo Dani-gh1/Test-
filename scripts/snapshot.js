@@ -3,6 +3,10 @@
 //
 //   NODE_USE_ENV_PROXY=1 node scripts/snapshot.js --minutes 30 --out data/snapshot.json
 //   node scripts/snapshot.js --minutes 30 --continue data/snapshot.json
+//   node scripts/snapshot.js --continue data/run-24h.json --until 2026-11-26T11:00:00Z
+//
+// --until stops at a fixed time, so a restarted run still ends when planned.
+// --continue starts a new session when the file does not exist yet.
 //
 // --continue picks up an earlier session (open positions are re-priced on the first round).
 'use strict';
@@ -16,13 +20,14 @@ const opt = (name, def) => {
   const i = args.indexOf('--' + name);
   return i >= 0 && args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : def;
 };
-const minutes = Number(opt('minutes', 30));
+const until = opt('until', null);
+const minutes = until ? (Date.parse(until) - Date.now()) / 60000 : Number(opt('minutes', 30));
 const cont = opt('continue', null);
 const out = opt('out', cont || 'data/snapshot.json');
 const startUsd = Number(opt('start', engine.RULES.sniper.startUsd));
 
 if (!(minutes > 0)) {
-  console.error('--minutes must be a positive number');
+  console.error(until ? `--until ${until} is not a future time` : '--minutes must be a positive number');
   process.exit(1);
 }
 
@@ -52,13 +57,18 @@ const tick = setInterval(() => {
   save();
 }, 60e3);
 
-setTimeout(() => {
+function finish(why) {
   runner.stop();
   clearInterval(tick);
   engine.sample(state, Date.now());
   state.updatedAt = Date.now();
   save();
   report();
-  console.log('saved', out);
+  console.log(`${new Date().toISOString()} ${why}, saved ${out}`);
   process.exit(0);
-}, minutes * 60e3);
+}
+// setTimeout cannot wait longer than ~24.8 days; check the end time every minute instead.
+const endAt = Date.now() + minutes * 60e3;
+const endCheck = setInterval(() => { if (Date.now() >= endAt) { clearInterval(endCheck); finish('finished'); } }, Math.min(60e3, minutes * 60e3));
+process.on('SIGTERM', () => finish('stopped'));
+process.on('SIGINT', () => finish('stopped'));

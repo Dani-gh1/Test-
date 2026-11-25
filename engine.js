@@ -42,7 +42,7 @@
   };
   const ANALYST_CHECKS = 5;
   const LOG_MAX = 40;
-  const SEEN_MAX = 5000;
+  const SEEN_MAX = 40000;
   const HIST_MAX = 1500;
   const SAMPLE_MS = 30e3;
 
@@ -117,14 +117,20 @@
     if (s.radar.length > 16) s.radar.shift();
   }
 
+  // Seen tokens are kept as 12-character address prefixes so a day-long session stays small.
+  const seenKey = (addr) => String(addr).slice(0, 12);
   function hasSeen(s, addr) {
-    if (!s._seenSet || s._seenSet.size !== s.seen.length) s._seenSet = new Set(s.seen);
-    return s._seenSet.has(addr);
+    if (!s._seenSet || s._seenSet.size !== s.seen.length) {
+      s.seen = [...new Set(s.seen.map(seenKey))];
+      s._seenSet = new Set(s.seen);
+    }
+    return s._seenSet.has(seenKey(addr));
   }
   function markSeen(s, addr) {
     hasSeen(s, addr);
-    s.seen.push(addr);
-    s._seenSet.add(addr);
+    const k = seenKey(addr);
+    s.seen.push(k);
+    s._seenSet.add(k);
     if (s.seen.length > SEEN_MAX) {
       const drop = s.seen.splice(0, s.seen.length - SEEN_MAX);
       for (const a of drop) s._seenSet.delete(a);
@@ -277,7 +283,7 @@
     s.marks.push({ t: now, v, win: pnl >= 0 });
     if (s.marks.length > 400) s.marks.shift();
     s.closed.push({ sym: p.sym, pnl, at: now });
-    if (s.closed.length > 60) s.closed.shift();
+    if (s.closed.length > 500) s.closed.shift();
     s.lastClosed = { sym: p.sym, pnl, kind: pnl >= 0 ? 'banked' : 'stopped' };
   }
 
